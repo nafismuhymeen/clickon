@@ -1,0 +1,15 @@
+# Dependencies & Build Outputs
+node_modules/
+dist/
+*.tsbuildinfo
+.turbo/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs & OS
+*.log
+.DS_Store
