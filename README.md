@@ -5,7 +5,7 @@ Monorepo structure for ClickOn application, managed with `pnpm` workspaces.
 ## Structure
 
 - **`apps/frontend`**: React / Vite frontend application.
-- **`apps/backend`**: Fastify / Node.js backend service.
+- **`apps/backend`**: Express JS / Node.js backend service.
 - **`tooling/tsconfig`**: Shared TypeScript configuration packages.
 - **`tooling/eslint-config`**: Shared ESLint configuration rules.
 
