@@ -1,11 +1,26 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from './assets/vite.svg';
-import heroImg from './assets/hero.png';
-import './App.css';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
+import { AppLayout } from '@/components/layout/AppLayout';
+import Dashboard from '@/pages/Dashboard';
+import Analytics from '@/pages/Analytics';
+import Docs from '@/pages/Docs';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import NotFound from '@/pages/NotFound';
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+        },
+    },
+});
 function App() {
-    const [count, setCount] = useState(0);
-    return (_jsxs(_Fragment, { children: [_jsxs("section", { id: "center", children: [_jsxs("div", { className: "hero", children: [_jsx("img", { src: heroImg, className: "base", width: "170", height: "179", alt: "" }), _jsx("img", { src: reactLogo, className: "framework", alt: "React logo" }), _jsx("img", { src: viteLogo, className: "vite", alt: "Vite logo" })] }), _jsxs("div", { children: [_jsx("h1", { children: "Get started" }), _jsxs("p", { children: ["Edit ", _jsx("code", { children: "src/App.tsx" }), " and save to test ", _jsx("code", { children: "HMR" })] })] }), _jsxs("button", { type: "button", className: "counter", onClick: () => setCount((count) => count + 1), children: ["Count is ", count] })] }), _jsx("div", { className: "ticks" }), _jsxs("section", { id: "next-steps", children: [_jsxs("div", { id: "docs", children: [_jsx("svg", { className: "icon", role: "presentation", "aria-hidden": "true", children: _jsx("use", { href: "/icons.svg#documentation-icon" }) }), _jsx("h2", { children: "Documentation" }), _jsx("p", { children: "Your questions, answered" }), _jsxs("ul", { children: [_jsx("li", { children: _jsxs("a", { href: "https://vite.dev/", target: "_blank", children: [_jsx("img", { className: "logo", src: viteLogo, alt: "" }), "Explore Vite"] }) }), _jsx("li", { children: _jsxs("a", { href: "https://react.dev/", target: "_blank", children: [_jsx("img", { className: "button-icon", src: reactLogo, alt: "" }), "Learn more"] }) })] })] }), _jsxs("div", { id: "social", children: [_jsx("svg", { className: "icon", role: "presentation", "aria-hidden": "true", children: _jsx("use", { href: "/icons.svg#social-icon" }) }), _jsx("h2", { children: "Connect with us" }), _jsx("p", { children: "Join the Vite community" }), _jsxs("ul", { children: [_jsx("li", { children: _jsxs("a", { href: "https://github.com/vitejs/vite", target: "_blank", children: [_jsx("svg", { className: "button-icon", role: "presentation", "aria-hidden": "true", children: _jsx("use", { href: "/icons.svg#github-icon" }) }), "GitHub"] }) }), _jsx("li", { children: _jsxs("a", { href: "https://chat.vite.dev/", target: "_blank", children: [_jsx("svg", { className: "button-icon", role: "presentation", "aria-hidden": "true", children: _jsx("use", { href: "/icons.svg#discord-icon" }) }), "Discord"] }) }), _jsx("li", { children: _jsxs("a", { href: "https://x.com/vite_js", target: "_blank", children: [_jsx("svg", { className: "button-icon", role: "presentation", "aria-hidden": "true", children: _jsx("use", { href: "/icons.svg#x-icon" }) }), "X.com"] }) }), _jsx("li", { children: _jsxs("a", { href: "https://bsky.app/profile/vite.dev", target: "_blank", children: [_jsx("svg", { className: "button-icon", role: "presentation", "aria-hidden": "true", children: _jsx("use", { href: "/icons.svg#bluesky-icon" }) }), "Bluesky"] }) })] })] })] }), _jsx("div", { className: "ticks" }), _jsx("section", { id: "spacer" })] }));
+    return (_jsx(QueryClientProvider, { client: queryClient, children: _jsxs(ThemeProvider, { children: [_jsx(BrowserRouter, { children: _jsxs(Routes, { children: [_jsxs(Route, { element: _jsx(AppLayout, {}), children: [_jsx(Route, { path: "/", element: _jsx(Dashboard, {}) }), _jsx(Route, { path: "/analytics/:linkId", element: _jsx(Analytics, {}) })] }), _jsx(Route, { path: "/docs", element: _jsx(Docs, {}) }), _jsx(Route, { path: "/login", element: _jsx(Login, {}) }), _jsx(Route, { path: "/register", element: _jsx(Register, {}) }), _jsx(Route, { path: "*", element: _jsx(NotFound, {}) })] }) }), _jsx(Toaster, { position: "top-right", richColors: true, closeButton: true, toastOptions: {
+                        duration: 3000,
+                    } })] }) }));
 }
 export default App;
