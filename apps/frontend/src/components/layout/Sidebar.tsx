@@ -152,6 +152,20 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
             Sign out
           </Button>
         </div>
+
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground/70 px-1 pt-1 border-t border-border/40">
+          <Link to="/about" onClick={onClose} className="hover:text-foreground transition-colors">
+            About
+          </Link>
+          <span>•</span>
+          <Link to="/contact" onClick={onClose} className="hover:text-foreground transition-colors">
+            Contact
+          </Link>
+          <span>•</span>
+          <Link to="/terms" onClick={onClose} className="hover:text-foreground transition-colors">
+            Terms
+          </Link>
+        </div>
       </div>
     </div>
   );

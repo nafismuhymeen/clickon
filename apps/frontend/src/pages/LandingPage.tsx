@@ -18,7 +18,6 @@ import {
   TrendingUp,
   MousePointerClick,
   Activity,
-  Layers,
   Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { PublicFooter } from '@/components/layout/PublicFooter';
 import { useLinkStore } from '@/store/link.store';
 import { toast } from 'sonner';
 
@@ -96,22 +96,22 @@ export default function LandingPage() {
             <span className="text-xl font-bold tracking-tight">ClickOn</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-muted-foreground">
             <a href="#hero" className="hover:text-foreground transition-colors">
               Shortener
             </a>
-            <a href="#stats" className="hover:text-foreground transition-colors">
-              Stats
-            </a>
-            <a href="#services" className="hover:text-foreground transition-colors">
-              Services
-            </a>
-            <a href="#developer" className="hover:text-foreground transition-colors">
-              API Docs
-            </a>
-            <a href="#preview" className="hover:text-foreground transition-colors">
-              Analytics
-            </a>
+            <Link to="/about" className="hover:text-foreground transition-colors">
+              About
+            </Link>
+            <Link to="/contact" className="hover:text-foreground transition-colors">
+              Contact
+            </Link>
+            <Link to="/docs" className="hover:text-foreground transition-colors">
+              Docs
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -720,31 +720,7 @@ print("Short URL:", response.json().get("shortUrl"))`}</code>
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-12 bg-background z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
-              <Link2 className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold tracking-tight">ClickOn</span>
-            <span className="text-xs text-muted-foreground ml-2">
-              © {new Date().getFullYear()} ClickOn Inc. All rights reserved.
-            </span>
-          </div>
-
-          <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <Link to="/docs" className="hover:text-foreground transition-colors">
-              Documentation
-            </Link>
-            <Link to="/dashboard" className="hover:text-foreground transition-colors">
-              Dashboard
-            </Link>
-            <Link to="/login" className="hover:text-foreground transition-colors">
-              Account
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
