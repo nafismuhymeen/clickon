@@ -7,6 +7,9 @@ import LandingPage from '@/pages/LandingPage';
 import Dashboard from '@/pages/Dashboard';
 import Analytics from '@/pages/Analytics';
 import Docs from '@/pages/Docs';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
+import Terms from '@/pages/Terms';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import NotFound from '@/pages/NotFound';
@@ -36,6 +39,9 @@ function App() {
             </Route>
 
             {/* Standalone Pages */}
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/docs" element={<Docs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
