@@ -8,6 +8,13 @@
       "when": 1787397806298,
       "tag": "0000_absent_korvac",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795037760640,
+      "tag": "0001_wandering_jubilee",
+      "breakpoints": true
     }
   ]
 }

@@ -1,22 +1,28 @@
-﻿import { pgTable, serial, integer, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, text, timestamp, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { links } from "./link.js";
 
-export const clicks = pgTable("clicks", {
-  id: serial("id").primaryKey(),
-  linkId: integer("link_id")
-    .notNull()
-    .references(() => links.id, { onDelete: "cascade" }),
-  country: text("country"),
-  city: text("city"),
-  device: text("device"),
-  browser: text("browser"),
-  referrer: text("referrer"),
-  ip: text("ip"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const clicks = pgTable(
+  "clicks",
+  {
+    id: serial("id").primaryKey(),
+    linkId: integer("link_id")
+      .notNull()
+      .references(() => links.id, { onDelete: "cascade" }),
+    country: text("country"),
+    city: text("city"),
+    device: text("device"),
+    browser: text("browser"),
+    referrer: text("referrer"),
+    ip: text("ip"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("clicks_link_id_created_at_idx").on(table.linkId, table.createdAt),
+  ]
+);
 
 export const clicksRelations = relations(clicks, ({ one }) => ({
   link: one(links, {
