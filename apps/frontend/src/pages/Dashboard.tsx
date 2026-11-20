@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link2, Plus, MousePointerClick } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,15 +9,14 @@ import { formatNumber } from '@/lib/utils';
 
 export default function Dashboard() {
   const [page, setPage] = useState(1);
-  const links = useLinkStore((s) => s.links);
+  const { links, pagination, totalClicks, isLoading, fetchLinks } = useLinkStore();
 
-  const totalClicks = links.reduce((sum, l) => sum + (l.totalClicks ?? 0), 0);
+  useEffect(() => {
+    fetchLinks(page);
+  }, [fetchLinks, page]);
 
-  const pagination = {
-    page,
-    totalPages: 1,
-    total: links.length,
-  };
+  const displayTotalClicks = totalClicks ?? links.reduce((sum, l) => sum + (l.totalClicks ?? 0), 0);
+  const displayTotalLinks = pagination.total || links.length;
 
   return (
     <div className="space-y-6">
@@ -40,7 +39,7 @@ export default function Dashboard() {
               <Link2 className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{formatNumber(links.length)}</p>
+              <p className="text-2xl font-bold">{formatNumber(displayTotalLinks)}</p>
               <p className="text-xs text-muted-foreground">Total Links</p>
             </div>
           </CardContent>
@@ -51,7 +50,7 @@ export default function Dashboard() {
               <MousePointerClick className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{formatNumber(totalClicks)}</p>
+              <p className="text-2xl font-bold">{formatNumber(displayTotalClicks)}</p>
               <p className="text-xs text-muted-foreground">Total Clicks</p>
             </div>
           </CardContent>
@@ -61,13 +60,13 @@ export default function Dashboard() {
       {/* Link list */}
       <LinkList
         links={links}
-        isLoading={false}
+        isLoading={isLoading}
         pagination={pagination}
         onPageChange={setPage}
       />
 
       {/* Empty state */}
-      {links.length === 0 && (
+      {!isLoading && links.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center space-y-4">
             <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">

@@ -134,6 +134,7 @@ export class LinksService {
   ): Promise<{
     links: Link[];
     total: number;
+    totalClicks: number;
     page: number;
     limit: number;
     totalPages: number;
@@ -157,7 +158,7 @@ export class LinksService {
 
     const whereClause = and(...conditions);
 
-    // Get total count
+    // Get total links count
     const [totalRecord] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(links)
@@ -165,6 +166,15 @@ export class LinksService {
 
     const total = totalRecord?.count ?? 0;
     const totalPages = Math.ceil(total / limit) || 1;
+
+    // Get overall total clicks for the user's matching links
+    const [totalClicksRecord] = await db
+      .select({ count: sql<number>`count(${clicks.id})::int` })
+      .from(links)
+      .innerJoin(clicks, eq(links.id, clicks.linkId))
+      .where(whereClause);
+
+    const totalClicks = totalClicksRecord?.count ?? 0;
 
     // Fetch links with aggregated totalClicks via LEFT JOIN clicks
     const rows = await db
@@ -191,6 +201,7 @@ export class LinksService {
     return {
       links: rows.map(formatLink),
       total,
+      totalClicks,
       page,
       limit,
       totalPages,

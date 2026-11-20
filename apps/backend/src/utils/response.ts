@@ -12,7 +12,7 @@ export function sendSuccess<T>(res: Response, data: T, statusCode = 200): Respon
 export function sendPaginated<T>(
   res: Response,
   data: T[],
-  pagination: { page: number; limit: number; total: number; totalPages: number },
+  pagination: { page: number; limit: number; total: number; totalPages: number; totalClicks?: number },
   statusCode = 200
 ): Response {
   const payload: PaginatedResponse<T> = {

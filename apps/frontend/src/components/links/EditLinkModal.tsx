@@ -31,6 +31,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useLinkStore } from '@/store/link.store';
+import { getApiErrorMessage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import type { Link } from '@/types';
 
@@ -80,19 +81,23 @@ export function EditLinkModal({ link }: EditLinkModalProps) {
 
   const hasExpiration = form.watch('hasExpiration');
 
-  const onSubmit = (data: EditLinkForm) => {
+  const onSubmit = async (data: EditLinkForm) => {
     const expiresAtPayload = data.hasExpiration && data.expiresAt
       ? data.expiresAt.toISOString()
-      : undefined;
+      : null;
 
-    updateLink(link.id, {
-      originalUrl: data.originalUrl,
-      isActive: data.isActive,
-      expiresAt: expiresAtPayload,
-    });
+    try {
+      await updateLink(link.id, {
+        originalUrl: data.originalUrl,
+        isActive: data.isActive,
+        expiresAt: expiresAtPayload,
+      });
 
-    toast.success('Link updated successfully!');
-    setOpen(false);
+      toast.success('Link updated successfully!');
+      setOpen(false);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update link'));
+    }
   };
 
   return (

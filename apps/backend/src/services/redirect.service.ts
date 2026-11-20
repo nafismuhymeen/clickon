@@ -91,7 +91,7 @@ export class RedirectService {
         }
 
         const ip = extractClientIp(req);
-        const geo = parseGeoLocation(ip);
+        const geo = parseGeoLocation(ip, req.headers);
         const { device, browser } = parseDeviceAndBrowser(userAgent);
         const rawReferrer = req.headers["referer"] || req.headers["referrer"];
         const referrer = normalizeReferrer(

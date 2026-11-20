@@ -87,7 +87,7 @@ export default function Docs() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground leading-relaxed">
-                React 19 + Vite app equipped with 17 shadcn UI components, Tailwind CSS design system tokens, Recharts analytics, and Zustand mock state.
+                React 19 + Vite app equipped with 17 shadcn UI components, Tailwind CSS design system tokens, Recharts analytics, and real-time backend synchronization.
               </CardContent>
             </Card>
 
@@ -120,12 +120,12 @@ export default function Docs() {
                 desc: 'Integrated monorepo workflow with pnpm package manager and Turbo caching.',
               },
               {
-                title: 'Unprotected UI Preview Mode',
-                desc: 'All dashboard views, link cards, creation modals, and analytics charts are directly accessible for UI demonstration.',
+                title: 'Live Backend & Database Sync',
+                desc: 'Dashboard views, link actions, creation modals, and analytics charts are directly connected to the PostgreSQL database via Express REST API and Socket.io.',
               },
               {
-                title: 'Interactive Mock Link Store',
-                desc: 'Full local state interaction: create new links, toggle active status, edit destination URLs, and view detailed analytics.',
+                title: 'Dynamic State Management',
+                desc: 'Full persistent state interaction: create new links, toggle active status, edit destination URLs, and view detailed real-time analytics.',
               },
               {
                 title: 'Visualized Analytics (Recharts)',

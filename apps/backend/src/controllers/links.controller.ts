@@ -26,6 +26,7 @@ export class LinksController {
         limit: result.limit,
         total: result.total,
         totalPages: result.totalPages,
+        totalClicks: result.totalClicks,
       },
       200
     );

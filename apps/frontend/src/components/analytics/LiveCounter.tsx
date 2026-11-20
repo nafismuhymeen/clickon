@@ -2,26 +2,46 @@ import { useEffect, useState } from 'react';
 import { Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatNumber } from '@/lib/utils';
+import { getSocket } from '@/lib/socket';
+import type { ClickNewEvent } from '@/types';
 
 interface LiveCounterProps {
   linkId: number;
   initialCount: number;
 }
 
-export function LiveCounter({ initialCount }: LiveCounterProps) {
-  const [count, setCount] = useState(() => initialCount);
+export function LiveCounter({ linkId, initialCount }: LiveCounterProps) {
+  const [count, setCount] = useState(initialCount);
+  const [prevInitial, setPrevInitial] = useState(initialCount);
   const [flash, setFlash] = useState(false);
 
-  // Simulate live incoming clicks for demo UI
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCount((prev) => prev + 1);
-      setFlash(true);
-      setTimeout(() => setFlash(false), 600);
-    }, 8000);
+  if (initialCount !== prevInitial) {
+    setPrevInitial(initialCount);
+    setCount(initialCount);
+  }
 
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket.emit('join', { linkId });
+
+    const handleClickEvent = (event: ClickNewEvent) => {
+      if (Number(event.linkId) === linkId) {
+        setCount(event.totalClicks);
+        setFlash(true);
+        setTimeout(() => setFlash(false), 600);
+      }
+    };
+
+    socket.on('click:new', handleClickEvent);
+    socket.on('click', handleClickEvent);
+
+    return () => {
+      socket.off('click:new', handleClickEvent);
+      socket.off('click', handleClickEvent);
+      socket.emit('leave', { linkId });
+    };
+  }, [linkId]);
 
   return (
     <Card className="relative overflow-hidden">

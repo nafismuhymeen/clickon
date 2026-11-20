@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useLinkStore } from '@/store/link.store';
+import { getApiErrorMessage } from '@/lib/api';
 import { EditLinkModal } from './EditLinkModal';
 import type { Link } from '@/types';
 
@@ -26,21 +27,30 @@ export function LinkActions({ link }: LinkActionsProps) {
   const isActive = link.isActive;
   const shortUrl = link.shortUrl;
 
-  const handleToggle = () => {
-    updateLink(linkId, { isActive: !isActive });
-    toast.success(isActive ? 'Link deactivated' : 'Link activated');
+  const handleToggle = async () => {
+    try {
+      await updateLink(linkId, { isActive: !isActive });
+      toast.success(isActive ? 'Link deactivated' : 'Link activated');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update link status'));
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!confirmDelete) {
       setConfirmDelete(true);
       setTimeout(() => setConfirmDelete(false), 3000);
       return;
     }
 
-    deleteLink(linkId);
-    toast.success('Link deleted');
-    setConfirmDelete(false);
+    try {
+      await deleteLink(linkId);
+      toast.success('Link deleted');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to delete link'));
+    } finally {
+      setConfirmDelete(false);
+    }
   };
 
   return (

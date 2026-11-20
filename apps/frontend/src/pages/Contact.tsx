@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { PublicNav } from '@/components/layout/PublicNav';
 import { PublicFooter } from '@/components/layout/PublicFooter';
+import { contactApi, getApiErrorMessage } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function Contact() {
@@ -41,7 +42,7 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
@@ -50,13 +51,15 @@ export default function Contact() {
     }
 
     setIsSubmitting(true);
-
-    // Simulate async submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await contactApi.submit(formData);
       setSubmitted(true);
       toast.success('Your message has been dispatched to our engineering team!');
-    }, 800);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to send message. Please try again.'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {

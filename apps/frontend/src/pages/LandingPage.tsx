@@ -27,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { PublicFooter } from '@/components/layout/PublicFooter';
 import { useLinkStore } from '@/store/link.store';
+import { getApiErrorMessage } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function LandingPage() {
@@ -39,7 +40,7 @@ export default function LandingPage() {
   const [copied, setCopied] = useState(false);
   const [activeCodeTab, setActiveCodeTab] = useState<'curl' | 'js' | 'python'>('js');
 
-  const handleShorten = (e: React.FormEvent) => {
+  const handleShorten = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputUrl.trim()) {
       toast.error('Please enter a valid URL');
@@ -52,7 +53,7 @@ export default function LandingPage() {
         formattedUrl = `https://${formattedUrl}`;
       }
 
-      const newLink = addLink({
+      const newLink = await addLink({
         originalUrl: formattedUrl,
         customSlug: customAlias.trim() || undefined,
       });
@@ -63,8 +64,8 @@ export default function LandingPage() {
       });
 
       toast.success('Link shortened successfully!');
-    } catch {
-      toast.error('Failed to shorten link');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to shorten link. Please sign in or try again.'));
     }
   };
 
@@ -500,7 +501,7 @@ export default function LandingPage() {
                     <div className="h-3 w-3 rounded-full bg-green-500/80" />
                     <span className="text-xs font-mono text-muted-foreground ml-2">clickon.io/analytics/tech-launch-2026</span>
                   </div>
-                  <Badge variant="secondary" className="text-[10px]">LIVE DEMO</Badge>
+                  <Badge variant="secondary" className="text-[10px]">PREVIEW</Badge>
                 </div>
 
                 <CardContent className="p-6 space-y-6">

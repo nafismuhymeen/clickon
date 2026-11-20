@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/popover';
 import { LockedFeature } from '@/components/shared/LockedFeature';
 import { useLinkStore } from '@/store/link.store';
+import { getApiErrorMessage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 const createLinkSchema = z.object({
@@ -58,14 +59,19 @@ export function CreateLinkModal({ trigger }: CreateLinkModalProps) {
     },
   });
 
-  const onSubmit = (data: CreateLinkForm) => {
-    addLink({
-      originalUrl: data.originalUrl,
-      customSlug: data.customSlug || undefined,
-    });
-    toast.success('Link created successfully!');
-    form.reset();
-    setOpen(false);
+  const onSubmit = async (data: CreateLinkForm) => {
+    try {
+      await addLink({
+        originalUrl: data.originalUrl,
+        customSlug: data.customSlug || undefined,
+        expiresAt: data.expiresAt ? data.expiresAt.toISOString() : undefined,
+      });
+      toast.success('Link created successfully!');
+      form.reset();
+      setOpen(false);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to create link'));
+    }
   };
 
   return (

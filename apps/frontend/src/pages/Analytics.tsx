@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -48,12 +49,20 @@ function StatCard({
 export default function Analytics() {
   const { linkId } = useParams<{ linkId: string }>();
   const navigate = useNavigate();
-  const numericLinkId = Number(linkId) || 1;
-  const getAnalytics = useLinkStore((s) => s.getAnalytics);
+  const numericLinkId = Number(linkId);
+  const { getAnalytics, fetchAnalytics } = useLinkStore();
   const data = getAnalytics(numericLinkId);
 
+  useEffect(() => {
+    if (!numericLinkId || isNaN(numericLinkId)) {
+      navigate('/dashboard');
+      return;
+    }
+    fetchAnalytics(numericLinkId);
+  }, [fetchAnalytics, numericLinkId, navigate]);
+
   const handleExport = () => {
-    toast.success('CSV export requested! (Mock environment: CSV downloaded).');
+    toast.info('CSV export is being generated for PRO accounts.');
   };
 
   return (

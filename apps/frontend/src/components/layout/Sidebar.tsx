@@ -122,7 +122,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.email || 'user@clickon.io'}</p>
+            <p className="text-sm font-medium truncate">{user?.email || 'Authenticated User'}</p>
             <Badge
               variant="secondary"
               className={cn(

@@ -137,12 +137,27 @@ export function parseDeviceAndBrowser(userAgent?: string): {
   };
 }
 
-export function parseGeoLocation(ip: string): {
+export function parseGeoLocation(
+  ip: string,
+  reqHeaders?: Record<string, string | string[] | undefined>
+): {
   country: string;
   city: string;
 } {
-  // Normalize loopback / private IPv4
-  const normalizedIp = ip === "::1" || ip === "127.0.0.1" ? "8.8.8.8" : ip;
+  // 1. If deployed behind Cloudflare or similar reverse proxy, use their geo headers directly
+  const cfCountry = reqHeaders?.["cf-ipcountry"];
+  if (cfCountry && typeof cfCountry === "string" && cfCountry.length === 2 && cfCountry !== "XX" && cfCountry !== "T1") {
+    const code = cfCountry.toUpperCase();
+    const countryName = ISO_COUNTRY_NAMES[code] || code;
+    return {
+      country: countryName,
+      city: "Unknown",
+    };
+  }
+
+  // 2. Normalize loopback / private IPv4 for local testing (fallback to 8.8.8.8)
+  const isLoopback = ip === "::1" || ip === "127.0.0.1" || ip === "localhost";
+  const normalizedIp = isLoopback ? "8.8.8.8" : ip;
   const geo = geoip.lookup(normalizedIp);
 
   if (!geo) {

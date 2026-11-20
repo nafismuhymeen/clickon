@@ -83,6 +83,7 @@ export interface PaginatedResponse<T> {
     limit: number;
     total: number;
     totalPages: number;
+    totalClicks?: number;
   };
 }
 

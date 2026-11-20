@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuthStore } from '@/store/auth.store';
+import { getApiErrorMessage } from '@/lib/api';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
@@ -26,19 +27,22 @@ export default function Login() {
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'nafis@clickon.io',
-      password: 'password123',
+      email: '',
+      password: '',
     },
   });
 
-  const onSubmit = (data: LoginForm) => {
+  const onSubmit = async (data: LoginForm) => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      login({ id: 1, email: data.email, role: 'PRO' });
+    try {
+      await login({ email: data.email, password: data.password });
       toast.success('Welcome back!');
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to sign in. Please check your credentials.'));
+    } finally {
       setIsSubmitting(false);
-      navigate('/');
-    }, 500);
+    }
   };
 
   return (
@@ -57,7 +61,7 @@ export default function Login() {
           <div>
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
             <CardDescription className="text-base mt-1">
-              Sign in to your ClickOn account (Mock UI preview mode)
+              Sign in to your ClickOn account
             </CardDescription>
           </div>
         </CardHeader>

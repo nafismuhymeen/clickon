@@ -11,10 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuthStore } from '@/store/auth.store';
+import { getApiErrorMessage } from '@/lib/api';
 
 const registerSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
   role: z.enum(['FREE', 'PRO']),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -26,7 +27,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { register } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<RegisterForm>({
@@ -39,14 +40,21 @@ export default function Register() {
     },
   });
 
-  const onSubmit = (data: RegisterForm) => {
+  const onSubmit = async (data: RegisterForm) => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      login({ id: Date.now(), email: data.email, role: data.role });
+    try {
+      await register({
+        email: data.email,
+        password: data.password,
+        role: data.role,
+      });
       toast.success('Account created successfully! Welcome to ClickOn.');
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to create account.'));
+    } finally {
       setIsSubmitting(false);
-      navigate('/');
-    }, 500);
+    }
   };
 
   return (
