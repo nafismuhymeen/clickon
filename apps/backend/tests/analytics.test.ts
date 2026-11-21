@@ -14,24 +14,34 @@ describe("Analytics Module (/api/links/:id/analytics)", () => {
 
   beforeAll(async () => {
     // 1. Register main user
-    const userRes = await request(app)
+    const userEmail = `analytics_user_${Date.now()}@clickon.io`;
+    await request(app)
       .post("/api/auth/register")
       .send({
-        email: `analytics_user_${Date.now()}@clickon.io`,
+        email: userEmail,
         password: "Password123!",
         role: "PRO",
       });
-    userToken = userRes.body.data.accessToken;
+    await pool.query("UPDATE users SET is_verified = true WHERE email = $1", [userEmail.toLowerCase()]);
+    const userLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email: userEmail, password: "Password123!" });
+    userToken = userLogin.body.data.accessToken;
 
     // 2. Register other user
-    const otherRes = await request(app)
+    const otherEmail = `other_analytics_${Date.now()}@clickon.io`;
+    await request(app)
       .post("/api/auth/register")
       .send({
-        email: `other_analytics_${Date.now()}@clickon.io`,
+        email: otherEmail,
         password: "Password123!",
         role: "PRO",
       });
-    otherToken = otherRes.body.data.accessToken;
+    await pool.query("UPDATE users SET is_verified = true WHERE email = $1", [otherEmail.toLowerCase()]);
+    const otherLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email: otherEmail, password: "Password123!" });
+    otherToken = otherLogin.body.data.accessToken;
 
     // 3. Create link
     const linkRes = await request(app)

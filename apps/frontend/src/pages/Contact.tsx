@@ -192,20 +192,35 @@ export default function Contact() {
                   ))}
                 </div>
 
-                {/* Headquarters & Hours */}
-                <Card className="border-border/60 bg-muted/30">
+                {/* Headquarters, Office Location & Embedded Google Map */}
+                <Card className="border-border/60 bg-muted/30 overflow-hidden">
                   <CardContent className="p-5 space-y-3">
                     <div className="flex items-center gap-2 text-sm font-semibold">
                       <MapPin className="h-4 w-4 text-primary" />
-                      <span>Headquarters & Distributed Teams</span>
+                      <span>Global Headquarters</span>
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      ClickOn operates distributed edge nodes globally with primary developer hubs in San Francisco, London, and Tokyo.
+                      100 Market Street, Suite 300, San Francisco, CA 94105, United States
                     </p>
                     <div className="pt-1 text-xs text-muted-foreground border-t border-border/50">
                       Standard Business Operations: Mon–Fri, 08:00 - 20:00 UTC
                     </div>
                   </CardContent>
+
+                  {/* Embedded Google Map */}
+                  <div className="w-full h-56 border-t border-border/50 relative bg-muted/50">
+                    <iframe
+                      title="ClickOn Global Headquarters"
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.086487140735!2d-122.3999719234832!3d37.79268397198129!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808580625f3876db%3A0x868c280540d9d0c2!2s100%20Market%20St%2C%20San%20Francisco%2C%20CA%2094105!5e0!3m2!1sen!2sus!4v1711000000000!5m2!1sen!2sus"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="w-full h-full grayscale-[20%] contrast-[1.05] hover:grayscale-0 transition-all duration-300"
+                    />
+                  </div>
                 </Card>
               </div>
 

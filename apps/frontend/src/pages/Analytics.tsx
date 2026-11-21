@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   Calendar,
   Globe,
   Download,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -50,8 +51,9 @@ export default function Analytics() {
   const { linkId } = useParams<{ linkId: string }>();
   const navigate = useNavigate();
   const numericLinkId = Number(linkId);
-  const { getAnalytics, fetchAnalytics } = useLinkStore();
+  const { getAnalytics, fetchAnalytics, exportCSV } = useLinkStore();
   const data = getAnalytics(numericLinkId);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (!numericLinkId || isNaN(numericLinkId)) {
@@ -61,8 +63,21 @@ export default function Analytics() {
     fetchAnalytics(numericLinkId);
   }, [fetchAnalytics, numericLinkId, navigate]);
 
-  const handleExport = () => {
-    toast.info('CSV export is being generated for PRO accounts.');
+  const handleExport = async () => {
+    if (isExporting) return; // Prevent multiple clicks
+    
+    setIsExporting(true);
+    try {
+      toast.info('CSV export is being generated for PRO accounts...');
+      await exportCSV(numericLinkId);
+      toast.success('CSV has been generated! Check your email inbox.');
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : 'Export failed';
+      toast.error(`Export failed: ${errorMsg}`);
+      console.error('CSV export error:', error);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -91,9 +106,19 @@ export default function Analytics() {
             variant="outline"
             className="gap-2"
             onClick={handleExport}
+            disabled={isExporting}
           >
-            <Download className="h-4 w-4" />
-            Export CSV
+            {isExporting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" />
+                Export CSV
+              </>
+            )}
           </Button>
         </LockedFeature>
       </div>

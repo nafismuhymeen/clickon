@@ -1,6 +1,7 @@
 import { db } from "../db/index.js";
 import { links, clicks } from "../db/schema/index.js";
 import { eq, and, sql, desc, ilike, or } from "drizzle-orm";
+import { sendCSVEmail } from "./mail.service.js";
 import { env } from "../config/env.js";
 import { redis } from "../config/redis.js";
 import {
@@ -313,6 +314,82 @@ export class LinksService {
     if (existing.customSlug && existing.customSlug !== existing.shortCode) {
       await redis.del(`url:${existing.customSlug}`);
     }
+  }
+
+  static async exportCSVAsEmail(
+    userId: number,
+    linkId: number,
+    userEmail: string
+  ): Promise<void> {
+    const [link] = await db
+      .select()
+      .from(links)
+      .where(and(eq(links.id, linkId), eq(links.userId, userId)))
+      .limit(1);
+
+    if (!link) {
+      throw AppError.notFound("Link not found or access denied", "LINK_NOT_FOUND");
+    }
+
+    // Fetch all clicks for this link
+    const clicksData = await db
+      .select({
+        id: clicks.id,
+        linkId: clicks.linkId,
+        createdAt: clicks.createdAt,
+        country: clicks.country,
+        city: clicks.city,
+        device: clicks.device,
+        browser: clicks.browser,
+        referrer: clicks.referrer,
+        ip: clicks.ip,
+      })
+      .from(clicks)
+      .where(eq(clicks.linkId, linkId))
+      .orderBy(desc(clicks.createdAt));
+
+    if (clicksData.length === 0) {
+      throw AppError.badRequest("No click data available for export", "NO_CLICK_DATA");
+    }
+
+    // Generate CSV content
+    const csvContent = this.generateCSVContent(link, clicksData);
+
+    // Send via email
+    await sendCSVEmail({
+      to: userEmail,
+      linkId,
+      linkSlug: link.customSlug || link.shortCode,
+      totalClicks: clicksData.length,
+      csvContent,
+    });
+  }
+
+  private static generateCSVContent(
+    link: typeof links.$inferSelect,
+    clicksData: typeof clicks.$inferSelect[]
+  ): string {
+    const headers = [
+      "Timestamp",
+      "Country",
+      "City",
+      "Device",
+      "Browser",
+      "Referrer",
+      "IP Address",
+    ];
+
+    const rows = clicksData.map((click) => [
+      new Date(click.createdAt).toISOString(),
+      click.country || "Unknown",
+      click.city || "",
+      click.device || "Desktop",
+      click.browser || "Unknown",
+      click.referrer || "Direct",
+      click.ip || "",
+    ]);
+
+    return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
   }
 }
 

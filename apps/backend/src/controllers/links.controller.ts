@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { LinksService } from "../services/links.service.js";
 import { AnalyticsService } from "../services/analytics.service.js";
+import { AppError } from "../utils/errors.js";
 import {
   createLinkSchema,
   updateLinkSchema,
@@ -55,6 +56,31 @@ export class LinksController {
     const linkId = Number(req.params.id);
     const analytics = await AnalyticsService.getLinkAnalytics(req.user!.id, linkId);
     return sendSuccess(res, analytics, 200);
+  }
+
+  static async exportCSV(req: Request, res: Response): Promise<Response> {
+    const linkId = Number(req.params.id);
+    const user = req.user!;
+
+    // Validate user has PRO role
+    if (user.role !== "PRO") {
+      throw AppError.forbidden("CSV export is only available for PRO accounts", "PRO_REQUIRED");
+    }
+
+    // Validate link ownership
+    await LinksService.getLinkById(user.id, linkId);
+
+    // Generate CSV and send via email asynchronously
+    await LinksService.exportCSVAsEmail(user.id, linkId, user.email!);
+
+    return sendSuccess(
+      res,
+      {
+        message: "CSV is being generated and will be sent to your email",
+        linkId,
+      },
+      200
+    );
   }
 }
 

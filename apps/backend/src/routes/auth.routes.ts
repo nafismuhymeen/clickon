@@ -7,6 +7,9 @@ import { authLimiter } from "../middleware/rateLimiter.js";
 export const authRouter = Router();
 
 authRouter.post("/register", authLimiter, asyncHandler(AuthController.register));
+authRouter.get("/verify-email", asyncHandler(AuthController.verifyEmail));
+authRouter.post("/verify-email", asyncHandler(AuthController.verifyEmail));
+authRouter.post("/resend-verification", authLimiter, asyncHandler(AuthController.resendVerification));
 authRouter.post("/login", authLimiter, asyncHandler(AuthController.login));
 authRouter.post("/refresh", asyncHandler(AuthController.refresh));
 authRouter.post("/logout", requireAuth, asyncHandler(AuthController.logout));

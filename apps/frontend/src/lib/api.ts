@@ -3,7 +3,6 @@ import type {
   ApiResponse,
   PaginatedResponse,
   LoginResponse,
-  RegisterResponse,
   RefreshResponse,
   User,
   Link,
@@ -159,8 +158,18 @@ export function getApiErrorMessage(error: unknown, defaultMessage = 'An unexpect
 // ---- API Methods ----
 
 export const authApi = {
-  async register(payload: { email: string; password: string; role?: 'FREE' | 'PRO' }): Promise<RegisterResponse> {
-    const res = await apiClient.post<ApiResponse<RegisterResponse>>('/api/auth/register', payload);
+  async register(payload: { email: string; password: string; role?: 'FREE' | 'PRO' }): Promise<{ message: string; email: string }> {
+    const res = await apiClient.post<ApiResponse<{ message: string; email: string }>>('/api/auth/register', payload);
+    return res.data.data;
+  },
+
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    const res = await apiClient.get<ApiResponse<{ message: string }>>(`/api/auth/verify-email?token=${token}`);
+    return res.data.data;
+  },
+
+  async resendVerification(email: string): Promise<{ message: string }> {
+    const res = await apiClient.post<ApiResponse<{ message: string }>>('/api/auth/resend-verification', { email });
     return res.data.data;
   },
 
@@ -211,6 +220,13 @@ export const linksApi = {
 
   async getAnalytics(id: number): Promise<Analytics> {
     const res = await apiClient.get<ApiResponse<Analytics>>(`/api/links/${id}/analytics`);
+    return res.data.data;
+  },
+
+  async exportCSV(id: number): Promise<{ message: string; linkId: number }> {
+    const res = await apiClient.post<ApiResponse<{ message: string; linkId: number }>>(
+      `/api/links/${id}/export-csv`
+    );
     return res.data.data;
   },
 };

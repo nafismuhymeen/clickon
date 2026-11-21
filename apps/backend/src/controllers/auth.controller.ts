@@ -15,6 +15,18 @@ export class AuthController {
     return sendSuccess(res, result, 201);
   }
 
+  static async verifyEmail(req: Request, res: Response): Promise<Response> {
+    const token = req.query.token as string || req.body?.token as string;
+    const result = await AuthService.verifyEmail(token);
+    return sendSuccess(res, result, 200);
+  }
+
+  static async resendVerification(req: Request, res: Response): Promise<Response> {
+    const email = (req.body?.email || req.query?.email) as string;
+    const result = await AuthService.resendVerification(email);
+    return sendSuccess(res, result, 200);
+  }
+
   static async login(req: Request, res: Response): Promise<Response> {
     const parsed = loginSchema.parse(req.body);
     const result = await AuthService.login(parsed.email, parsed.password);

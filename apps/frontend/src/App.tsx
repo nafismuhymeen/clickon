@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
@@ -15,6 +16,7 @@ import Contact from '@/pages/Contact';
 import Terms from '@/pages/Terms';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import VerifyEmail from '@/pages/VerifyEmail';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({
@@ -28,7 +30,13 @@ const queryClient = new QueryClient({
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -65,6 +73,7 @@ function App() {
             <Route path="/docs" element={<Docs />} />
             
             {/* Auth Pages (redirect to /dashboard if already logged in) */}
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route
               path="/login"
               element={

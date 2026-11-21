@@ -9,6 +9,7 @@ import {
   Sparkles,
   CheckCircle2,
   Code2,
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -281,6 +282,35 @@ export default function About() {
                   <p className="text-xs text-muted-foreground leading-relaxed">{m.description}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Embedded Video Section (Introduction About Us) */}
+        <section className="py-20 border-t bg-muted/30">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-center">
+            <div className="space-y-4">
+              <Badge variant="outline" className="px-3 py-1 font-semibold text-primary border-primary/20 bg-primary/5">
+                <Play className="h-3 w-3 mr-1.5 fill-current" />
+                Meet ClickOn
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                Our Story in Motion
+              </h2>
+              <p className="text-muted-foreground text-base max-w-xl mx-auto">
+                Discover what drives our engineering philosophy, our focus on sub-millisecond edge redirection, and how we empower modern creators and developers.
+              </p>
+            </div>
+
+            <div className="w-full aspect-video rounded-2xl overflow-hidden border border-border/60 shadow-2xl bg-card">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?si=clickon-intro"
+                title="ClickOn Story & Introduction"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
             </div>
           </div>
         </section>

@@ -15,4 +15,5 @@ linksRouter.get("/:id", asyncHandler(LinksController.getById));
 linksRouter.patch("/:id", asyncHandler(LinksController.update));
 linksRouter.delete("/:id", asyncHandler(LinksController.delete));
 linksRouter.get("/:id/analytics", asyncHandler(LinksController.getAnalytics));
+linksRouter.post("/:id/export-csv", asyncHandler(LinksController.exportCSV));
 

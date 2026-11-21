@@ -5,6 +5,9 @@ import { sendError } from "../utils/response.js";
 import type { Request, Response } from "express";
 
 function createStore(prefix: string) {
+  if (process.env.NODE_ENV === "test") {
+    return undefined;
+  }
   const client = redis.getClient();
   if (redis.isAvailable() && client) {
     try {

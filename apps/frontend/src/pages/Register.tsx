@@ -29,6 +29,7 @@ export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -43,19 +44,60 @@ export default function Register() {
   const onSubmit = async (data: RegisterForm) => {
     setIsSubmitting(true);
     try {
-      await register({
+      const res = await register({
         email: data.email,
         password: data.password,
         role: data.role,
       });
-      toast.success('Account created successfully! Welcome to ClickOn.');
-      navigate('/dashboard');
+      setRegisteredEmail(res.email);
+      toast.success('Registration successful! Please check your email to verify your account.');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Failed to create account.'));
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (registeredEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/50 dark:from-slate-950 dark:via-background dark:to-indigo-950/20 p-4">
+        <Card className="w-full max-w-md relative shadow-xl shadow-black/5 dark:shadow-black/20 border-border/50 text-center">
+          <CardHeader className="space-y-4 pb-2">
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-lg shadow-primary/20">
+              <Link2 className="h-8 w-8" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl font-bold">Check your inbox</CardTitle>
+              <CardDescription className="text-base mt-2">
+                We sent a verification link to <span className="font-semibold text-foreground">{registeredEmail}</span>.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6 pt-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Please click the link inside the email to verify your address. Once verified, you can immediately sign in to your dashboard.
+            </p>
+            <div className="space-y-3">
+              <Button
+                variant="default"
+                className="w-full font-semibold"
+                onClick={() => navigate('/login')}
+              >
+                Go to Sign In
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setRegisteredEmail(null)}
+              >
+                Entered wrong email? Register again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/50 dark:from-slate-950 dark:via-background dark:to-indigo-950/20 p-4">

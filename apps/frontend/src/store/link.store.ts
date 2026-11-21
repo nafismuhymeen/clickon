@@ -22,6 +22,7 @@ interface LinkState {
   deleteLink: (id: number) => Promise<void>;
   getAnalytics: (id: number) => Analytics;
   fetchAnalytics: (id: number) => Promise<Analytics>;
+  exportCSV: (id: number) => Promise<{ message: string; linkId: number }>;
 }
 
 export const useLinkStore = create<LinkState>((set, get) => ({
@@ -116,5 +117,9 @@ export const useLinkStore = create<LinkState>((set, get) => ({
       set({ isAnalyticsLoading: false });
       throw err;
     }
+  },
+
+  exportCSV: async (id: number) => {
+    return await linksApi.exportCSV(id);
   },
 }));

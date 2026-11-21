@@ -14,24 +14,36 @@ describe("Links CRUD & Ownership Isolation (/api/links)", () => {
 
   beforeAll(async () => {
     // Register FREE user
-    const freeRes = await request(app)
+    const freeEmail = `free_user_${Date.now()}@clickon.io`;
+    await request(app)
       .post("/api/auth/register")
       .send({
-        email: `free_user_${Date.now()}@clickon.io`,
+        email: freeEmail,
         password: "Password123!",
         role: "FREE",
       });
-    freeToken = freeRes.body.data.accessToken;
+    // Mark as verified for test suite
+    await pool.query("UPDATE users SET is_verified = true WHERE email = $1", [freeEmail.toLowerCase()]);
+    const freeLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email: freeEmail, password: "Password123!" });
+    freeToken = freeLogin.body.data.accessToken;
 
     // Register PRO user
-    const proRes = await request(app)
+    const proEmail = `pro_user_${Date.now()}@clickon.io`;
+    await request(app)
       .post("/api/auth/register")
       .send({
-        email: `pro_user_${Date.now()}@clickon.io`,
+        email: proEmail,
         password: "Password123!",
         role: "PRO",
       });
-    proToken = proRes.body.data.accessToken;
+    // Mark as verified for test suite
+    await pool.query("UPDATE users SET is_verified = true WHERE email = $1", [proEmail.toLowerCase()]);
+    const proLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email: proEmail, password: "Password123!" });
+    proToken = proLogin.body.data.accessToken;
   });
 
   afterAll(async () => {

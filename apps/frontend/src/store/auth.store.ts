@@ -11,8 +11,9 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isSubmitting: boolean;
   login: (credentials: { email: string; password: string }) => Promise<User>;
-  register: (payload: { email: string; password: string; role?: 'FREE' | 'PRO' }) => Promise<User>;
+  register: (payload: { email: string; password: string; role?: 'FREE' | 'PRO' }) => Promise<{ message: string; email: string }>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -21,29 +22,29 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: !!getStoredAccessToken(),
   isLoading: !!getStoredAccessToken(),
+  isSubmitting: false,
 
   login: async ({ email, password }) => {
-    set({ isLoading: true });
+    set({ isSubmitting: true });
     try {
       const data = await authApi.login({ email, password });
       setStoredTokens(data.accessToken, data.refreshToken);
-      set({ user: data.user, isAuthenticated: true, isLoading: false });
+      set({ user: data.user, isAuthenticated: true, isSubmitting: false });
       return data.user;
     } catch (err) {
-      set({ isLoading: false });
+      set({ isSubmitting: false });
       throw err;
     }
   },
 
   register: async (payload) => {
-    set({ isLoading: true });
+    set({ isSubmitting: true });
     try {
       const data = await authApi.register(payload);
-      setStoredTokens(data.accessToken, data.refreshToken);
-      set({ user: data.user, isAuthenticated: true, isLoading: false });
-      return data.user;
+      set({ isSubmitting: false });
+      return data;
     } catch (err) {
-      set({ isLoading: false });
+      set({ isSubmitting: false });
       throw err;
     }
   },

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Link2,
   ArrowRight,
@@ -147,12 +148,30 @@ export default function LandingPage() {
               <span>Next-Gen URL Management & Real-Time Analytics</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-[1.15]">
-              Shorten, Share & Track <br />
-              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-[1.15]"
+            >
+              <motion.span
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+                className="inline-block"
+              >
+                Shorten, Share & Track
+              </motion.span>
+              <br />
+              <motion.span
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
+                className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent"
+              >
                 Every Link in Real-Time
-              </span>
-            </h1>
+              </motion.span>
+            </motion.h1>
 
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto font-normal">
               Transform messy URLs into clean, high-performing branded links. Gain granular 

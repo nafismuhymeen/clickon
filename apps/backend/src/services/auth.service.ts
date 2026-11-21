@@ -1,6 +1,9 @@
 import { db } from "../db/index.js";
 import { users, refreshTokens } from "../db/schema/index.js";
 import { eq, and } from "drizzle-orm";
+import crypto from "crypto";
+import { env } from "../config/env.js";
+import { sendVerificationEmail } from "./mail.service.js";
 import {
   hashPassword,
   comparePassword,
@@ -18,12 +21,12 @@ export class AuthService {
     email: string,
     password: string,
     role: UserRole = "FREE"
-  ): Promise<LoginResponse> {
+  ): Promise<{ message: string; email: string }> {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if user already exists
     const [existing] = await db
-      .select({ id: users.id })
+      .select({ id: users.id, isVerified: users.isVerified })
       .from(users)
       .where(eq(users.email, normalizedEmail))
       .limit(1);
@@ -33,44 +36,98 @@ export class AuthService {
     }
 
     const passwordHash = await hashPassword(password);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        email: normalizedEmail,
-        passwordHash,
-        role,
-      })
-      .returning({
-        id: users.id,
-        email: users.email,
-        role: users.role,
-      });
+    await db.insert(users).values({
+      email: normalizedEmail,
+      passwordHash,
+      role,
+      isVerified: false,
+      verificationToken,
+      verificationExpiresAt,
+    });
 
-    const user: User = {
-      id: newUser.id,
-      email: newUser.email,
-      role: newUser.role as UserRole,
-    };
-
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user.id);
-    const hashedRefreshToken = hashToken(refreshToken);
-
-    // Default 7 days expiration for refresh token
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-    await db.insert(refreshTokens).values({
-      token: hashedRefreshToken,
-      userId: user.id,
-      expiresAt,
+    // Send verification email via configured SMTP / Resend
+    const verificationUrl = `${env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    await sendVerificationEmail({
+      to: normalizedEmail,
+      verificationUrl,
     });
 
     return {
-      accessToken,
-      refreshToken,
-      user,
+      message: "Registration successful. Please verify your email before logging in.",
+      email: normalizedEmail,
     };
+  }
+
+  static async verifyEmail(token: string): Promise<{ message: string }> {
+    if (!token || !token.trim()) {
+      throw AppError.badRequest("Verification token is required", "INVALID_TOKEN");
+    }
+
+    const trimmedToken = token.trim();
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.verificationToken, trimmedToken))
+      .limit(1);
+
+    if (!user) {
+      throw AppError.badRequest("Invalid or expired verification token", "INVALID_TOKEN");
+    }
+
+    if (user.verificationExpiresAt && new Date(user.verificationExpiresAt).getTime() < Date.now()) {
+      throw AppError.badRequest("Verification token has expired. Please request a new one.", "TOKEN_EXPIRED");
+    }
+
+    await db
+      .update(users)
+      .set({
+        isVerified: true,
+      })
+      .where(eq(users.id, user.id));
+
+    return { message: "Email successfully verified! You can now sign in." };
+  }
+
+  static async resendVerification(email: string): Promise<{ message: string }> {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, normalizedEmail))
+      .limit(1);
+
+    if (!user) {
+      // Return success message to prevent user enumeration
+      return { message: "If this email is registered, a verification link has been sent." };
+    }
+
+    if (user.isVerified) {
+      return { message: "Email is already verified. You can sign in." };
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await db
+      .update(users)
+      .set({
+        verificationToken,
+        verificationExpiresAt,
+      })
+      .where(eq(users.id, user.id));
+
+    const verificationUrl = `${env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    await sendVerificationEmail({
+      to: normalizedEmail,
+      verificationUrl,
+    });
+
+    return { message: "Verification link sent to your email." };
   }
 
   static async login(email: string, password: string): Promise<LoginResponse> {
@@ -91,6 +148,14 @@ export class AuthService {
     const isMatch = await comparePassword(password, foundUser.passwordHash);
     if (!isMatch) {
       throw AppError.unauthorized("Invalid credentials", "INVALID_CREDENTIALS");
+    }
+
+    // Check email verification
+    if (!foundUser.isVerified) {
+      throw AppError.forbidden(
+        "Please verify your email address before logging in. Check your inbox for the verification link.",
+        "EMAIL_NOT_VERIFIED"
+      );
     }
 
     const user: User = {

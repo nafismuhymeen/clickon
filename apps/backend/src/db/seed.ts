@@ -23,6 +23,7 @@ async function seed() {
       email: "nafis@clickon.io",
       passwordHash,
       role: "PRO",
+      isVerified: true,
     })
     .returning();
 
@@ -32,6 +33,7 @@ async function seed() {
       email: "free@clickon.io",
       passwordHash,
       role: "FREE",
+      isVerified: true,
     })
     .returning();
 

@@ -16,14 +16,19 @@ describe("Redirect & Click Tracking (/r/:code)", () => {
   let expiredCode = "";
 
   beforeAll(async () => {
-    const regRes = await request(app)
+    const email = `redirect_tester_${Date.now()}@clickon.io`;
+    await request(app)
       .post("/api/auth/register")
       .send({
-        email: `redirect_tester_${Date.now()}@clickon.io`,
+        email,
         password: "Password123!",
         role: "PRO",
       });
-    userToken = regRes.body.data.accessToken;
+    await pool.query("UPDATE users SET is_verified = true WHERE email = $1", [email.toLowerCase()]);
+    const loginRes = await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: "Password123!" });
+    userToken = loginRes.body.data.accessToken;
 
     // 1. Create active link
     const linkRes = await request(app)
